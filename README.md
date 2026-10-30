@@ -101,12 +101,11 @@ npm run test-email -- --all
   ```
   curl.exe -H "Authorization: Bearer YOUR_CRON_SECRET" https://YOUR-SITE.vercel.app/api/weekly-reminder
   ```
-  (The **Run** button under **Settings → Cron Jobs** works too, but outside Monday 10h it will just answer "skipped".)
+  (Or click **Run** on the job under **Settings → Cron Jobs** on Vercel.)
 
 ## Notes
 
-- **About the time:** Vercel schedules in UTC and ignores daylight saving time, while Athens is UTC+2 in winter and UTC+3 in summer. So `vercel.json` has two Monday runs, at 07:00 and 08:00 UTC, and the code only sends on the one that is 10h in Athens (`emailHour` in `public/schedule.js`). The other run just skips — that's why you'll see one "skipped" in the logs every Monday.
-- On Vercel's free (Hobby) plan, each run can fire anytime within its hour, so the email arrives between 10:00 and 10:59.
-- To change the time, edit `emailHour` and move both UTC hours in `vercel.json` (they should be `emailHour − 3` and `emailHour − 2`).
+- The time in `vercel.json` is UTC: `0 8 * * 1` = Monday 08:00 UTC, which is 10:00 in Athens in winter and 11:00 in summer. To change it, edit the hour there.
+- On Vercel's free (Hobby) plan, the job can fire anytime within that hour (e.g. between 10:00 and 10:59).
 - Names and emails live only in `.env` (ignored by Git) and in Vercel's variables — nothing personal goes to GitHub. The names do show up on the site itself (that's its job), but emails never leave the server.
 - The checklist on the site is saved only in the browser of whoever ticked it, and resets every week.

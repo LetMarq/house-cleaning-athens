@@ -7,12 +7,8 @@ export const CONFIG = {
   // The rotation continues from there automatically (weeks start on Monday).
   startDate: "2026-10-26",
 
-  // Time zone of the house (decides "which week is it today" and the email time)
+  // Time zone of the house (decides "which week is it today")
   timeZone: "Europe/Athens",
-
-  // Hour (in the time zone above) when the Monday email goes out.
-  // If you change it, also adjust the two schedules in vercel.json.
-  emailHour: 10,
 
   // What needs to be done each week (shown on the site and in the email)
   tasks: [
@@ -37,13 +33,6 @@ function dateInTimeZone(timeZone, now) {
     month: "2-digit",
     day: "2-digit",
   }).format(now);
-}
-
-// Current hour (0–23) in the house's time zone
-export function hourInTimeZone(now = new Date()) {
-  return Number(
-    new Intl.DateTimeFormat("en-GB", { timeZone: CONFIG.timeZone, hour: "2-digit", hourCycle: "h23" }).format(now)
-  );
 }
 
 function toUTC(ymd) {
