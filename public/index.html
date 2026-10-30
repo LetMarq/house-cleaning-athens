@@ -193,11 +193,15 @@
 
     // Background bubbles
     const bubbles = document.getElementById("bubbles");
-    for (let i = 0; i < 14; i++) {
+    const COUNT = 14;
+    for (let i = 0; i < COUNT; i++) {
       const b = document.createElement("span");
       const size = 20 + Math.random() * 70;
       b.style.width = b.style.height = `${size}px`;
-      b.style.left = `${Math.random() * 100}%`;
+      // Split the screen into COUNT strips and put one bubble in each,
+      // so they're always spread across the whole width
+      const x = ((i + Math.random()) / COUNT) * 100;
+      b.style.left = `calc(${x}% - ${size / 2}px)`; // centered on x
       b.style.animationDuration = `${14 + Math.random() * 16}s`;
       b.style.animationDelay = `${-Math.random() * 25}s`;
       bubbles.appendChild(b);

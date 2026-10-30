@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Weekly house cleaning rotation, with an email reminder every Monday.",
   "scripts": {
-    "dev": "vercel dev",
+    "dev": "node --env-file=.env scripts/dev.js",
     "test-email": "node --env-file=.env scripts/test-email.js"
   },
   "engines": {
