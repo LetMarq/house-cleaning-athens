@@ -1,0 +1,17 @@
+{
+  "name": "house-cleaning",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Weekly house cleaning rotation, with an email reminder every Monday.",
+  "scripts": {
+    "dev": "vercel dev",
+    "test-email": "node --env-file=.env scripts/test-email.js"
+  },
+  "engines": {
+    "node": ">=20.6"
+  },
+  "dependencies": {
+    "nodemailer": "^10.3.1"
+  }
+}

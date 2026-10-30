@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>House Cleaning</title>
+  <meta name="description" content="Weekly cleaning rotation: whose turn it is this week." />
+  <meta name="theme-color" content="#ffd6e8" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🫧</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-top: #ffe3ef;
+      --bg-bottom: #ffd0e4;
+      --card: rgba(255, 255, 255, 0.78);
+      --card-border: rgba(255, 255, 255, 0.95);
+      --ink: #5a2240;
+      --muted: #a8668a;
+      --shadow: 0 12px 32px rgba(232, 92, 152, 0.18), 0 2px 6px rgba(232, 92, 152, 0.10);
+      --bubble: rgba(255, 255, 255, 0.55);
+      /* one color per person */
+      --p0: #ff4f9a; /* PERSON_1 */
+      --p1: #b56cf0; /* PERSON_2 */
+      --p2: #ff7b8f; /* PERSON_3 */
+      --accent: var(--p0);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-top: #2a1022;
+        --bg-bottom: #3a1430;
+        --card: rgba(70, 28, 58, 0.72);
+        --card-border: rgba(255, 140, 195, 0.18);
+        --ink: #ffe6f1;
+        --muted: #e09cc0;
+        --shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+        --bubble: rgba(255, 120, 185, 0.14);
+        --p0: #ff7ab5;
+        --p1: #cf98ff;
+        --p2: #ff9aa9;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--bg-bottom); }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+      color: var(--ink);
+      font-family: Nunito, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    /* floating bubbles in the background */
+    .bubbles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .bubbles span {
+      position: absolute;
+      bottom: -140px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), var(--bubble) 45%, transparent 70%);
+      border: 1.5px solid rgba(255, 255, 255, 0.6);
+      animation: rise linear infinite;
+    }
+    @keyframes rise {
+      from { transform: translateY(0) translateX(0); opacity: 0; }
+      10%  { opacity: 1; }
+      50%  { transform: translateY(-55vh) translateX(18px); }
+      to   { transform: translateY(-115vh) translateX(-12px); opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) { .bubbles span { animation: none; display: none; } }
+
+    main { position: relative; z-index: 1; max-width: 520px; margin: 0 auto; padding: 36px 16px 64px; }
+
+    header { text-align: center; margin-bottom: 24px; }
+    .logo {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: Fredoka, Nunito, sans-serif; font-weight: 600; font-size: 18px;
+      color: var(--muted);
+      background: var(--card); border: 2px solid var(--card-border);
+      padding: 8px 18px; border-radius: 999px; box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    .hero {
+      background: var(--card);
+      border: 2px solid var(--card-border);
+      border-radius: 36px;
+      padding: 30px 24px 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      text-align: center;
+    }
+    .label { font-family: Fredoka, Nunito, sans-serif; font-weight: 500; font-size: 16px; color: var(--muted); }
+    .who-bubble {
+      display: inline-block;
+      margin: 12px 0 10px;
+      padding: 14px 34px 18px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #fff;
+      font-family: Fredoka, Nunito, sans-serif;
+      font-weight: 700;
+      font-size: clamp(40px, 12vw, 60px);
+      line-height: 1.05;
+      box-shadow: 0 10px 0 rgba(0,0,0,.06), 0 14px 30px color-mix(in srgb, var(--accent) 45%, transparent);
+      position: relative;
+      animation: bob 3.2s ease-in-out infinite;
+    }
+    .who-bubble::after { /* little shine */
+      content: ""; position: absolute; top: 12px; left: 22px; width: 18px; height: 10px;
+      border-radius: 50%; background: rgba(255,255,255,.55); transform: rotate(-20deg);
+    }
+    @keyframes bob { 50% { transform: translateY(-5px); } }
+    @media (prefers-reduced-motion: reduce) { .who-bubble { animation: none; } }
+
+    .period {
+      display: inline-block; margin: 6px 0 22px; padding: 4px 14px; border-radius: 999px;
+      background: color-mix(in srgb, var(--accent) 12%, transparent);
+      color: var(--ink); font-weight: 600; font-size: 15px;
+    }
+
+    .tasks { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; text-align: left; }
+    .tasks label {
+      display: flex; gap: 12px; align-items: center;
+      padding: 12px 16px; border-radius: 20px; cursor: pointer;
+      background: color-mix(in srgb, var(--accent) 7%, transparent);
+      border: 2px solid transparent;
+      transition: transform .15s ease, background .2s ease, border-color .2s ease;
+    }
+    .tasks label:hover { transform: scale(1.015); border-color: color-mix(in srgb, var(--accent) 25%, transparent); }
+    .tasks input { position: absolute; opacity: 0; pointer-events: none; }
+    .check {
+      flex: none; width: 26px; height: 26px; border-radius: 50%;
+      border: 2.5px solid color-mix(in srgb, var(--accent) 55%, transparent);
+      display: grid; place-items: center; color: #fff; font-size: 14px; font-weight: 700;
+      transition: background .2s ease, transform .2s ease;
+    }
+    .tasks input:checked ~ .check { background: var(--accent); border-color: var(--accent); transform: scale(1.08); }
+    .tasks input:checked ~ .check::before { content: "✓"; }
+    .tasks input:focus-visible ~ .check { outline: 3px solid color-mix(in srgb, var(--accent) 40%, transparent); outline-offset: 2px; }
+    .tasks input:checked ~ .text { color: var(--muted); text-decoration: line-through; text-decoration-thickness: 2px; }
+
+    .bar { margin: 20px auto 6px; height: 14px; border-radius: 999px; background: color-mix(in srgb, var(--accent) 14%, transparent); overflow: hidden; }
+    .bar div { height: 100%; width: 0; border-radius: 999px; background: var(--accent); transition: width .4s cubic-bezier(.3,1.4,.6,1); }
+    .progress { font-size: 14px; color: var(--muted); font-weight: 600; }
+
+    h2 { font-family: Fredoka, Nunito, sans-serif; font-weight: 600; font-size: 22px; margin: 36px 0 12px; text-align: center; }
+    .weeks { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+    .weeks li {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      background: var(--card); border: 2px solid var(--card-border);
+      border-radius: 999px; padding: 8px 18px 8px 8px;
+      box-shadow: var(--shadow); backdrop-filter: blur(8px);
+    }
+    .name { display: flex; align-items: center; gap: 12px; font-family: Fredoka, Nunito, sans-serif; font-weight: 600; font-size: 17px; }
+    .avatar {
+      flex: none; width: 38px; height: 38px; border-radius: 50%;
+      display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 17px;
+    }
+    .when { color: var(--muted); font-size: 14px; font-weight: 600; text-align: right; }
+    .when small { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+    .past { opacity: .55; }
+
+    footer { margin-top: 40px; font-size: 14px; color: var(--muted); text-align: center; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="bubbles" id="bubbles" aria-hidden="true"></div>
+
+  <main>
+    <header><span class="logo">🫧 House Cleaning</span></header>
+
+    <section class="hero">
+      <div class="label">This week it's</div>
+      <div class="who-bubble" id="who">…</div>
+      <div><span class="period" id="period"></span></div>
+      <ul class="tasks" id="tasks"></ul>
+      <div class="bar"><div id="bar"></div></div>
+      <div class="progress" id="progress"></div>
+    </section>
+
+    <h2>Upcoming weeks</h2>
+    <ul class="weeks" id="weeks"></ul>
+
+    <footer>💌 Every Monday morning an email goes out with whose turn it is.</footer>
+  </main>
+
+  <script type="module">
+    import { CONFIG, getWeek, formatRange } from "./schedule.js";
+
+    // Background bubbles
+    const bubbles = document.getElementById("bubbles");
+    for (let i = 0; i < 14; i++) {
+      const b = document.createElement("span");
+      const size = 20 + Math.random() * 70;
+      b.style.width = b.style.height = `${size}px`;
+      b.style.left = `${Math.random() * 100}%`;
+      b.style.animationDuration = `${14 + Math.random() * 16}s`;
+      b.style.animationDelay = `${-Math.random() * 25}s`;
+      bubbles.appendChild(b);
+    }
+
+    // Names come from the server (.env), never from the code
+    let names = [];
+    try {
+      const res = await fetch("/api/people");
+      names = (await res.json()).names || [];
+    } catch {}
+    if (names.length === 0) {
+      document.getElementById("who").textContent = "?";
+      document.getElementById("period").textContent = "Couldn't load the rotation";
+      throw new Error("No names loaded from /api/people");
+    }
+
+    const color = (i) => `var(--p${i % 3})`;
+    const current = getWeek(names, 0);
+    document.documentElement.style.setProperty("--accent", color(current.index));
+
+    document.getElementById("who").textContent = current.person;
+    document.getElementById("period").textContent = formatRange(current);
+
+    // Checklist (saved only in this browser, resets every week)
+    const key = `cleaning:${current.start.toISOString().slice(0, 10)}`;
+    let done = [];
+    try { done = JSON.parse(localStorage.getItem(key)) || []; } catch {}
+
+    const list = document.getElementById("tasks");
+    const progress = document.getElementById("progress");
+    const bar = document.getElementById("bar");
+    const updateProgress = () => {
+      const n = done.length, t = CONFIG.tasks.length;
+      bar.style.width = `${(n / t) * 100}%`;
+      progress.textContent = n === t ? "All done! Sparkly clean ✨" : `${n} of ${t} tasks done`;
+    };
+
+    CONFIG.tasks.forEach((task, i) => {
+      const li = document.createElement("li");
+      li.innerHTML = `<label><input type="checkbox"><span class="check"></span><span class="text"></span></label>`;
+      li.querySelector(".text").textContent = task;
+      const box = li.querySelector("input");
+      box.checked = done.includes(i);
+      box.addEventListener("change", () => {
+        done = box.checked ? [...done, i] : done.filter((x) => x !== i);
+        try { localStorage.setItem(key, JSON.stringify(done)); } catch {}
+        updateProgress();
+      });
+      list.appendChild(li);
+    });
+    updateProgress();
+
+    // Last week + next 6
+    const weeks = document.getElementById("weeks");
+    for (let o = -1; o <= 6; o++) {
+      if (o === 0) continue;
+      const s = getWeek(names, o);
+      const li = document.createElement("li");
+      if (o < 0) li.className = "past";
+      li.innerHTML = `<span class="name"><span class="avatar"></span><span class="who"></span></span><span class="when"></span>`;
+      const avatar = li.querySelector(".avatar");
+      avatar.style.background = color(s.index);
+      avatar.textContent = s.person.charAt(0);
+      li.querySelector(".who").textContent = s.person;
+      const tag = o === -1 ? "Last week" : o === 1 ? "Next" : "";
+      li.querySelector(".when").innerHTML = (tag ? `<small>${tag}</small>` : "") + formatRange(s);
+      weeks.appendChild(li);
+    }
+  </script>
+</body>
+</html>
